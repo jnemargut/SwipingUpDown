@@ -4,7 +4,7 @@ const PlayerManager = (() => {
   let isMuted = true;
   let apiReady = false;
   let apiReadyResolve = null;
-  let preloadTimer = null;
+  let settleTimer = null;
   let totalVideoCount = 0;
   const apiReadyPromise = new Promise((resolve) => { apiReadyResolve = resolve; });
 
@@ -116,17 +116,24 @@ const PlayerManager = (() => {
       pausePlayer(prevIndex);
     }
 
-    // Immediately create and play the current video (no debounce)
-    if (!players[index]) {
-      var slide = document.querySelector('.slide[data-index="' + index + '"]');
-      if (slide) createPlayer(index, slide.dataset.videoId);
-    } else {
+    // If a player already exists (pre-loaded as neighbor), play instantly
+    if (players[index] && typeof players[index].playVideo === 'function') {
       playPlayer(index);
     }
 
-    // Debounce neighbor preloading and cleanup (avoids hammering during fast scroll)
-    clearTimeout(preloadTimer);
-    preloadTimer = setTimeout(function () {
+    // Debounce ALL player creation — this is what prevents fast-scroll overload.
+    // For normal scrolling the 150ms delay is imperceptible.
+    // For fast scrolling, only the final resting slide gets a player created.
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(function () {
+      // Create current player if it doesn't exist yet
+      if (!players[index]) {
+        var slide = document.querySelector('.slide[data-index="' + index + '"]');
+        if (slide) createPlayer(index, slide.dataset.videoId);
+      } else {
+        playPlayer(index);
+      }
+
       // Preload neighbors
       [index - 1, index + 1].forEach(function (i) {
         if (i >= 0 && i < totalVideoCount && !players[i]) {
@@ -134,6 +141,7 @@ const PlayerManager = (() => {
           if (s) createPlayer(i, s.dataset.videoId);
         }
       });
+
       // Destroy players more than 3 away to free memory
       Object.keys(players).forEach(function (key) {
         var k = parseInt(key);
@@ -141,7 +149,7 @@ const PlayerManager = (() => {
           destroyPlayer(k);
         }
       });
-    }, 300);
+    }, 150);
   }
 
   function toggleMute() {
