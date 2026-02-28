@@ -1,0 +1,37 @@
+name: Sync to yellingatbots.com
+on:
+  push:
+    branches: [main]
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch whogitit notes
+        run: git fetch origin refs/notes/whogitit:refs/notes/whogitit || true
+      - name: Install whogitit
+        run: cargo install whogitit
+      - name: Export and sync
+        env:
+          YELLINGATBOTS_TOKEN: ${{ secrets.YELLINGATBOTS_TOKEN }}
+          YELLINGATBOTS_PROJECT_ID: ${{ secrets.YELLINGATBOTS_PROJECT_ID }}
+        run: |
+          set -e
+          REPO_TOTAL_COMMITS=$(git rev-list --count HEAD)
+          REPO_TOTAL_LINES=$(git ls-files -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.css' '*.html' '*.py' '*.rs' '*.go' '*.java' '*.rb' '*.vue' '*.svelte' | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}')
+          REPO_TOTAL_LINES=${REPO_TOTAL_LINES:-0}
+          whogitit export --full-prompts > /tmp/export.json
+          jq --argjson tc "$REPO_TOTAL_COMMITS" --argjson tl "$REPO_TOTAL_LINES" \
+            '. + {repo_stats: {total_commits: $tc, total_lines: $tl}}' \
+            /tmp/export.json > /tmp/payload.json
+          HTTP_CODE=$(curl -s -o /tmp/response.json -w '%{http_code}' \
+            -L -X POST \
+            -H "Authorization: Bearer $YELLINGATBOTS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d @/tmp/payload.json \
+            "https://yellingatbots.com/api/sync?project_id=$YELLINGATBOTS_PROJECT_ID")
+          echo "Sync response (HTTP $HTTP_CODE):"
+          cat /tmp/response.json
+          [ "$HTTP_CODE" -eq 200 ] || exit 1
