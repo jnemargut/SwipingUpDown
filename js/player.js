@@ -32,6 +32,7 @@ const PlayerManager = (() => {
     if (!container) return;
 
     players[index] = new YT.Player('player-' + index, {
+      host: 'https://www.youtube-nocookie.com',
       videoId: videoId,
       width: '100%',
       height: '100%',
@@ -52,7 +53,7 @@ const PlayerManager = (() => {
       },
       events: {
         onReady: (event) => {
-          // Auto-play if this is still the current slide when ready
+          // Only auto-play if this is still the current slide
           if (index === currentIndex) {
             event.target.playVideo();
             if (!isMuted) {
@@ -66,7 +67,7 @@ const PlayerManager = (() => {
             event.target.playVideo();
           }
         },
-        onError: (event) => {
+        onError: () => {
           var slide = document.querySelector('.slide[data-index="' + index + '"]');
           if (slide) {
             var cont = slide.querySelector('.player-container');
@@ -121,11 +122,11 @@ const PlayerManager = (() => {
       playPlayer(index);
     }
 
-    // Cancel any pending creation timers
+    // Cancel any pending timers
     clearTimeout(settleTimer);
     clearTimeout(neighborTimer);
 
-    // Short debounce for current player — just enough to skip intermediate slides
+    // Debounce — only create a player for the slide we settle on
     settleTimer = setTimeout(function () {
       if (!players[index]) {
         var slide = document.querySelector('.slide[data-index="' + index + '"]');
@@ -134,24 +135,24 @@ const PlayerManager = (() => {
         playPlayer(index);
       }
 
-      // Destroy players more than 2 away to free memory
+      // Destroy ALL other players except current one
       Object.keys(players).forEach(function (key) {
         var k = parseInt(key);
-        if (Math.abs(k - index) > 2) {
+        if (k !== index) {
           destroyPlayer(k);
         }
       });
-    }, 150);
+    }, 200);
 
-    // Longer debounce for neighbor preloading — only after scrolling truly settles
+    // Preload only the NEXT slide after a long delay (1s after settling)
     neighborTimer = setTimeout(function () {
-      [index - 1, index + 1].forEach(function (i) {
-        if (i >= 0 && i < totalVideoCount && !players[i]) {
-          var s = document.querySelector('.slide[data-index="' + i + '"]');
-          if (s) createPlayer(i, s.dataset.videoId);
-        }
-      });
-    }, 500);
+      if (currentIndex !== index) return; // user scrolled away
+      var next = index + 1;
+      if (next < totalVideoCount && !players[next]) {
+        var s = document.querySelector('.slide[data-index="' + next + '"]');
+        if (s) createPlayer(next, s.dataset.videoId);
+      }
+    }, 1200);
   }
 
   function toggleMute() {
