@@ -321,3 +321,20 @@ html, body {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* ── Portrait Mode: fill screen, crop sides ── */
+@media (max-aspect-ratio: 16/9) {
+  .player-container {
+    aspect-ratio: auto;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .player-container iframe {
+    width: calc(100dvh * 16 / 9);
+    height: 100dvh;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
