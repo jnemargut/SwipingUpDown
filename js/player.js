@@ -55,8 +55,24 @@ const PlayerManager = (() => {
           if (index === currentIndex && !isMuted) {
             try { event.target.unMute(); event.target.setVolume(100); } catch (e) {}
           }
+          // Wire up our play button as a user-gesture fallback for mobile
+          var playBtn = document.getElementById('play-btn-' + index);
+          if (playBtn) {
+            playBtn.onclick = function () {
+              event.target.playVideo();
+              playBtn.classList.add('hidden');
+            };
+          }
         },
         onStateChange: (event) => {
+          var playBtn = document.getElementById('play-btn-' + index);
+          if (event.data === YT.PlayerState.PLAYING) {
+            // Video is playing — hide the play button
+            if (playBtn) playBtn.classList.add('hidden');
+          } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.CUED) {
+            // Video paused or cued but not playing — show the play button
+            if (playBtn && index === currentIndex) playBtn.classList.remove('hidden');
+          }
           if (event.data === YT.PlayerState.ENDED) {
             event.target.seekTo(0);
             event.target.playVideo();
@@ -89,7 +105,16 @@ const PlayerManager = (() => {
 
   function onSlideVisible(index) {
     if (index === currentIndex) return;
+    var prevIndex = currentIndex;
     currentIndex = index;
+
+    // Hide play button on the slide we're leaving
+    var prevBtn = document.getElementById('play-btn-' + prevIndex);
+    if (prevBtn) prevBtn.classList.add('hidden');
+
+    // Show play button on the new slide (will auto-hide if autoplay works)
+    var newBtn = document.getElementById('play-btn-' + index);
+    if (newBtn) newBtn.classList.remove('hidden');
 
     // Cancel any pending timer
     clearTimeout(settleTimer);

@@ -51,7 +51,10 @@
           HEART_SVG +
         '</button>' +
       '</div>' +
-      '<div class="heart-burst" id="burst-' + index + '">' + BURST_SVG + '</div>';
+      '<div class="heart-burst" id="burst-' + index + '">' + BURST_SVG + '</div>' +
+      '<button class="play-btn" id="play-btn-' + index + '" aria-label="Play video">' +
+        '<svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>' +
+      '</button>';
 
     // Gesture handlers
     Gestures.attach(slide, {
