@@ -73,6 +73,10 @@ const PlayerManager = (() => {
             // Video is playing — block iframe interaction so our gestures work
             if (cont) cont.classList.add('is-playing');
             if (playBtn) playBtn.classList.add('hidden');
+            // Notify app that video is playing (for overlay)
+            if (event.data === YT.PlayerState.PLAYING) {
+              document.dispatchEvent(new CustomEvent('videoPlaying', { detail: { index: index } }));
+            }
           } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.CUED || event.data === YT.PlayerState.UNSTARTED) {
             // Not playing — allow iframe taps (YouTube's play button) and show ours
             if (cont) cont.classList.remove('is-playing');
@@ -181,5 +185,12 @@ const PlayerManager = (() => {
     return totalVideoCount;
   }
 
-  return { loadAPI, observeSlides, toggleMute, createPlayer, getCurrentIndex, getTotalCount, apiReady: apiReadyPromise };
+  function playCurrentVideo() {
+    var p = players[currentIndex];
+    if (p && typeof p.playVideo === 'function') {
+      p.playVideo();
+    }
+  }
+
+  return { loadAPI, observeSlides, toggleMute, createPlayer, getCurrentIndex, getTotalCount, playCurrentVideo, apiReady: apiReadyPromise };
 })();

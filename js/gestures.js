@@ -6,8 +6,13 @@ const Gestures = (() => {
     let singleTapTimer = null;
 
     element.addEventListener('click', (e) => {
-      // Don't handle taps on the heart button (it has its own handler)
+      // Don't handle taps on buttons with their own handlers
       if (e.target.closest('.heart-btn')) return;
+      if (e.target.closest('.play-btn')) return;
+
+      // Don't handle gestures when video isn't playing — let taps reach the iframe
+      var cont = element.querySelector('.player-container');
+      if (cont && !cont.classList.contains('is-playing')) return;
 
       const now = Date.now();
       const timeSinceLastTap = now - lastTapTime;

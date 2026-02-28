@@ -87,6 +87,13 @@
       }
     });
 
+    // Play button — stopPropagation so gesture handler doesn't intercept
+    const playBtnEl = slide.querySelector('.play-btn');
+    playBtnEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      PlayerManager.playCurrentVideo();
+    });
+
     // Direct heart button click
     const heartBtn = slide.querySelector('.heart-btn');
     heartBtn.addEventListener('click', (e) => {
@@ -104,32 +111,18 @@
     feed.appendChild(slide);
   });
 
-  // Show overlay when slide comes into view, auto-hide after 3 seconds
+  // Show overlay when video starts playing, auto-hide after 3 seconds
   var overlayTimers = {};
-  var overlayObserver = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      var idx = entry.target.dataset.index;
-      var overlay = document.getElementById('overlay-' + idx);
-      if (!overlay) return;
-
-      if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-        // Show overlay
-        overlay.classList.remove('hidden');
-        clearTimeout(overlayTimers[idx]);
-        overlayTimers[idx] = setTimeout(function () {
-          overlay.classList.add('hidden');
-        }, 3000);
-      } else {
-        // Hide when scrolling away
-        clearTimeout(overlayTimers[idx]);
-        overlay.classList.add('hidden');
-      }
-    });
-  }, {
-    root: feed,
-    threshold: 0.5
+  document.addEventListener('videoPlaying', function (e) {
+    var idx = e.detail.index;
+    var overlay = document.getElementById('overlay-' + idx);
+    if (!overlay) return;
+    overlay.classList.remove('hidden');
+    clearTimeout(overlayTimers[idx]);
+    overlayTimers[idx] = setTimeout(function () {
+      overlay.classList.add('hidden');
+    }, 3000);
   });
-  feed.querySelectorAll('.slide').forEach(function (slide) { overlayObserver.observe(slide); });
 
   // Add swipe hint for first-time visitors
   if (!localStorage.getItem('swipingupdown_visited')) {
