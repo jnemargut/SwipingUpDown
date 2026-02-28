@@ -1,0 +1,320 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ── Feed Container ── */
+.feed {
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Individual Slide ── */
+.slide {
+  height: 100vh;
+  height: 100dvh;
+  scroll-snap-align: start;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+}
+
+/* ── YouTube Player Container ── */
+.player-container {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  background: #111;
+}
+
+.player-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none;
+}
+
+/* ── Video Info Overlay ── */
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 60px 16px 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.video-title {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+.video-desc {
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: 4px;
+  opacity: 0.85;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.video-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.video-year {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.video-category {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+/* ── Heart Button ── */
+.heart-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.heart-icon {
+  width: 36px;
+  height: 36px;
+  transition: transform 0.3s ease;
+}
+
+.heart-icon path {
+  fill: transparent;
+  stroke: #fff;
+  stroke-width: 1.5;
+  transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
+.heart-btn.hearted .heart-icon path {
+  fill: #fe2c55;
+  stroke: #fe2c55;
+}
+
+.heart-btn.hearted .heart-icon {
+  animation: heartPop 0.4s ease;
+}
+
+/* ── Double-Tap Heart Burst ── */
+.heart-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0;
+}
+
+.heart-burst svg {
+  width: 100%;
+  height: 100%;
+}
+
+.heart-burst.animate {
+  animation: burstHeart 0.8s ease forwards;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+@keyframes burstHeart {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  30% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  60% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+}
+
+/* ── Mute Hint Overlay ── */
+.mute-hint {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.mute-hint.dismissed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mute-hint-content {
+  text-align: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.mute-hint-content p {
+  margin-top: 12px;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+/* ── Loading Spinner ── */
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 50;
+  transition: opacity 0.4s ease;
+}
+
+.loader.done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loader-text {
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Swipe Hint (shown on first visit) ── */
+.swipe-hint {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  text-align: center;
+  opacity: 0;
+  animation: swipeHintIn 0.5s ease 1.5s forwards;
+  pointer-events: none;
+}
+
+.swipe-hint.dismissed {
+  animation: swipeHintOut 0.3s ease forwards;
+}
+
+.swipe-hint svg {
+  animation: bobUp 1.5s ease-in-out infinite;
+}
+
+.swipe-hint p {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+@keyframes bobUp {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes swipeHintIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes swipeHintOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

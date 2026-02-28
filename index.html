@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Swipe through the greatest viral videos of the early internet era">
+  <title>SwipingUpDown</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="mute-hint" class="mute-hint">
+    <div class="mute-hint-content">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <line x1="23" y1="9" x2="17" y2="15"/>
+        <line x1="17" y1="9" x2="23" y2="15"/>
+      </svg>
+      <p>Tap anywhere to unmute</p>
+    </div>
+  </div>
+
+  <div id="feed" class="feed" role="main"></div>
+
+  <div id="loader" class="loader">
+    <div class="spinner"></div>
+    <p class="loader-text">Loading the internet's greatest hits...</p>
+  </div>
+
+  <script src="js/videos.js"></script>
+  <script src="js/hearts.js"></script>
+  <script src="js/gestures.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
