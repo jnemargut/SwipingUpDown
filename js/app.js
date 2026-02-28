@@ -38,7 +38,7 @@
 
     slide.innerHTML =
       '<div class="player-container" style="background-image:url(https://img.youtube.com/vi/' + video.id + '/hqdefault.jpg)"><div id="player-' + index + '"></div></div>' +
-      '<div class="overlay" id="overlay-' + index + '">' +
+      '<div class="overlay hidden" id="overlay-' + index + '">' +
         '<div class="video-info">' +
           '<h2 class="video-title">' + escapeHtml(video.title) + '</h2>' +
           '<p class="video-desc">' + escapeHtml(video.description) + '</p>' +
@@ -101,10 +101,32 @@
     feed.appendChild(slide);
   });
 
-  // Auto-hide overlays after 3 seconds
-  setTimeout(() => {
-    document.querySelectorAll('.overlay').forEach((o) => o.classList.add('hidden'));
-  }, 3000);
+  // Show overlay when slide comes into view, auto-hide after 3 seconds
+  var overlayTimers = {};
+  var overlayObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      var idx = entry.target.dataset.index;
+      var overlay = document.getElementById('overlay-' + idx);
+      if (!overlay) return;
+
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+        // Show overlay
+        overlay.classList.remove('hidden');
+        clearTimeout(overlayTimers[idx]);
+        overlayTimers[idx] = setTimeout(function () {
+          overlay.classList.add('hidden');
+        }, 3000);
+      } else {
+        // Hide when scrolling away
+        clearTimeout(overlayTimers[idx]);
+        overlay.classList.add('hidden');
+      }
+    });
+  }, {
+    root: feed,
+    threshold: 0.5
+  });
+  feed.querySelectorAll('.slide').forEach(function (slide) { overlayObserver.observe(slide); });
 
   // Add swipe hint for first-time visitors
   if (!localStorage.getItem('swipingupdown_visited')) {
