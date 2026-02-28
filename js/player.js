@@ -66,13 +66,19 @@ const PlayerManager = (() => {
         },
         onStateChange: (event) => {
           var playBtn = document.getElementById('play-btn-' + index);
-          if (event.data === YT.PlayerState.PLAYING) {
-            // Video is playing — hide the play button
+          var slide = document.querySelector('.slide[data-index="' + index + '"]');
+          var cont = slide ? slide.querySelector('.player-container') : null;
+
+          if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.BUFFERING) {
+            // Video is playing — block iframe interaction so our gestures work
+            if (cont) cont.classList.add('is-playing');
             if (playBtn) playBtn.classList.add('hidden');
-          } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.CUED) {
-            // Video paused or cued but not playing — show the play button
+          } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.CUED || event.data === YT.PlayerState.UNSTARTED) {
+            // Not playing — allow iframe taps (YouTube's play button) and show ours
+            if (cont) cont.classList.remove('is-playing');
             if (playBtn && index === currentIndex) playBtn.classList.remove('hidden');
           }
+
           if (event.data === YT.PlayerState.ENDED) {
             event.target.seekTo(0);
             event.target.playVideo();
