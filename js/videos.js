@@ -24,7 +24,7 @@ const VIDEOS = [
     year: 2002
   },
   {
-    id: "8fvTxv46ano",
+    id: "qItugh-fFgg",
     title: "All Your Base Are Belong To Us",
     description: "The worst video game translation became the greatest meme of the early internet. Somebody set up us the bomb, indeed.",
     category: "flash-era",
