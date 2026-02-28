@@ -5,7 +5,6 @@ const PlayerManager = (() => {
   let apiReady = false;
   let apiReadyResolve = null;
   let settleTimer = null;
-  let neighborTimer = null;
   let totalVideoCount = 0;
   const apiReadyPromise = new Promise((resolve) => { apiReadyResolve = resolve; });
 
@@ -53,14 +52,8 @@ const PlayerManager = (() => {
       },
       events: {
         onReady: (event) => {
-          if (index === currentIndex) {
-            // autoplay: 1 handles play; just unmute if needed
-            if (!isMuted) {
-              try { event.target.unMute(); event.target.setVolume(100); } catch (e) {}
-            }
-          } else {
-            // Neighbor preload — pause immediately so it doesn't play off-screen
-            try { event.target.pauseVideo(); } catch (e) {}
+          if (index === currentIndex && !isMuted) {
+            try { event.target.unMute(); event.target.setVolume(100); } catch (e) {}
           }
         },
         onStateChange: (event) => {
@@ -94,67 +87,26 @@ const PlayerManager = (() => {
     }
   }
 
-  function playPlayer(index) {
-    var p = players[index];
-    if (!p || typeof p.playVideo !== 'function') return;
-    p.playVideo();
-    if (!isMuted) {
-      try { p.unMute(); p.setVolume(100); } catch (e) {}
-    }
-  }
-
-  function pausePlayer(index) {
-    var p = players[index];
-    if (!p || typeof p.pauseVideo !== 'function') return;
-    try { p.pauseVideo(); } catch (e) {}
-  }
-
   function onSlideVisible(index) {
     if (index === currentIndex) return;
-    var prevIndex = currentIndex;
     currentIndex = index;
 
-    // Immediately pause the previous video
-    if (prevIndex >= 0) {
-      pausePlayer(prevIndex);
-    }
-
-    // If a player already exists (pre-loaded as neighbor), play instantly
-    if (players[index] && typeof players[index].playVideo === 'function') {
-      playPlayer(index);
-    }
-
-    // Cancel any pending timers
+    // Cancel any pending timer
     clearTimeout(settleTimer);
-    clearTimeout(neighborTimer);
 
-    // Debounce — only create a player for the slide we settle on
+    // Debounce — destroy everything, create a fresh player for the settled slide.
+    // Fresh players with autoplay: 1 + mute: 1 autoplay reliably on mobile.
+    // Calling playVideo() on a paused player does NOT work on mobile (no user gesture).
     settleTimer = setTimeout(function () {
-      if (!players[index]) {
-        var slide = document.querySelector('.slide[data-index="' + index + '"]');
-        if (slide) createPlayer(index, slide.dataset.videoId);
-      } else {
-        playPlayer(index);
-      }
-
-      // Destroy ALL other players except current one
+      // Destroy ALL existing players
       Object.keys(players).forEach(function (key) {
-        var k = parseInt(key);
-        if (k !== index) {
-          destroyPlayer(k);
-        }
+        destroyPlayer(parseInt(key));
       });
-    }, 200);
 
-    // Preload only the NEXT slide after a long delay (1s after settling)
-    neighborTimer = setTimeout(function () {
-      if (currentIndex !== index) return; // user scrolled away
-      var next = index + 1;
-      if (next < totalVideoCount && !players[next]) {
-        var s = document.querySelector('.slide[data-index="' + next + '"]');
-        if (s) createPlayer(next, s.dataset.videoId);
-      }
-    }, 1200);
+      // Create fresh player — autoplay: 1 handles playback on all platforms
+      var slide = document.querySelector('.slide[data-index="' + index + '"]');
+      if (slide) createPlayer(index, slide.dataset.videoId);
+    }, 200);
   }
 
   function toggleMute() {
