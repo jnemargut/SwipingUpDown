@@ -4,6 +4,8 @@ const PlayerManager = (() => {
   let isMuted = true;
   let apiReady = false;
   let apiReadyResolve = null;
+  let settleTimer = null;
+  let totalVideoCount = 0;
   const apiReadyPromise = new Promise((resolve) => { apiReadyResolve = resolve; });
 
   function loadAPI() {
@@ -61,11 +63,10 @@ const PlayerManager = (() => {
           }
         },
         onError: (event) => {
-          // Video unavailable — show a message on the slide
           const slide = document.querySelector('.slide[data-index="' + index + '"]');
           if (slide) {
-            const container = slide.querySelector('.player-container');
-            container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#555;font-size:14px;text-align:center;padding:20px;">This video is unavailable</div>';
+            const cont = slide.querySelector('.player-container');
+            cont.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#555;font-size:14px;text-align:center;padding:20px;">This video is unavailable</div>';
           }
         }
       }
@@ -73,9 +74,16 @@ const PlayerManager = (() => {
   }
 
   function destroyPlayer(index) {
-    if (players[index]) {
-      try { players[index].destroy(); } catch (e) {}
-      delete players[index];
+    if (!players[index]) return;
+    try { players[index].destroy(); } catch (e) {}
+    delete players[index];
+    // Restore the placeholder div so we can recreate the player later
+    const slide = document.querySelector('.slide[data-index="' + index + '"]');
+    if (slide) {
+      const cont = slide.querySelector('.player-container');
+      if (cont && !document.getElementById('player-' + index)) {
+        cont.innerHTML = '<div id="player-' + index + '"></div>';
+      }
     }
   }
 
@@ -94,35 +102,48 @@ const PlayerManager = (() => {
     try { p.pauseVideo(); } catch (e) {}
   }
 
-  function onSlideVisible(index, videoId, totalVideos) {
-    if (index === currentIndex) return;
-    const prevIndex = currentIndex;
-    currentIndex = index;
+  // Called after scrolling settles — does the actual player creation and playback
+  function settle(index) {
+    const slide = document.querySelector('.slide[data-index="' + index + '"]');
+    if (!slide) return;
+    const videoId = slide.dataset.videoId;
 
-    // Create players for current and neighbors
-    const toLoad = [index - 1, index, index + 1];
-    toLoad.forEach((i) => {
-      if (i >= 0 && i < totalVideos && !players[i]) {
-        const slide = document.querySelector('.slide[data-index="' + i + '"]');
-        if (slide) createPlayer(i, slide.dataset.videoId);
-      }
-    });
-
-    // Play current
-    playPlayer(index);
-
-    // Pause previous
-    if (prevIndex >= 0 && prevIndex !== index) {
-      pausePlayer(prevIndex);
-    }
-
-    // Destroy far-away players to save memory
+    // Destroy everything except neighbors of the settled index
     Object.keys(players).forEach((key) => {
       const k = parseInt(key);
-      if (Math.abs(k - index) > 2) {
+      if (Math.abs(k - index) > 1) {
         destroyPlayer(k);
       }
     });
+
+    // Create players for current and immediate neighbors
+    [index - 1, index, index + 1].forEach((i) => {
+      if (i >= 0 && i < totalVideoCount && !players[i]) {
+        const s = document.querySelector('.slide[data-index="' + i + '"]');
+        if (s) createPlayer(i, s.dataset.videoId);
+      }
+    });
+
+    // Play current, pause others
+    playPlayer(index);
+    Object.keys(players).forEach((key) => {
+      const k = parseInt(key);
+      if (k !== index) pausePlayer(k);
+    });
+  }
+
+  function onSlideVisible(index) {
+    if (index === currentIndex) return;
+    currentIndex = index;
+
+    // Pause all currently playing players immediately (don't wait for debounce)
+    Object.keys(players).forEach((key) => {
+      pausePlayer(parseInt(key));
+    });
+
+    // Debounce: wait for scrolling to stop before creating/loading players
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => settle(index), 200);
   }
 
   function toggleMute() {
@@ -140,13 +161,13 @@ const PlayerManager = (() => {
   }
 
   function observeSlides(feed, totalVideos) {
+    totalVideoCount = totalVideos;
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          const slide = entry.target;
-          const index = parseInt(slide.dataset.index);
-          const videoId = slide.dataset.videoId;
-          onSlideVisible(index, videoId, totalVideos);
+          const index = parseInt(entry.target.dataset.index);
+          onSlideVisible(index);
         }
       });
     }, {
@@ -158,9 +179,5 @@ const PlayerManager = (() => {
     return observer;
   }
 
-  function getIsMuted() {
-    return isMuted;
-  }
-
-  return { loadAPI, observeSlides, toggleMute, createPlayer, getIsMuted, apiReady: apiReadyPromise };
+  return { loadAPI, observeSlides, toggleMute, createPlayer, apiReady: apiReadyPromise };
 })();

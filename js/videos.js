@@ -10,7 +10,7 @@ const VIDEOS = [
     year: 2006
   },
   {
-    id: "4WgT9ber4HU",
+    id: "lrzKT-dFUjE",
     title: "Ultimate Showdown of Ultimate Destiny",
     description: "Every pop culture icon battles to the death in this Lemon Demon masterpiece. Good guys, bad guys, and explosions — as far as the eye can see.",
     category: "flash-era",
@@ -66,7 +66,7 @@ const VIDEOS = [
     year: 2003
   },
   {
-    id: "gTMxMObEn-M",
+    id: "oBFKfgLf0LI",
     title: "The Demented Cartoon Movie",
     description: "A 30-minute Flash film where everything explodes, crashes, or turns into a nuclear bomb. Peak early internet absurdism.",
     category: "flash-era",
@@ -122,14 +122,14 @@ const VIDEOS = [
     year: 2003
   },
   {
-    id: "OvQJrMFfRJE",
-    title: "Homestar Runner - Strong Bad Email #58 (Dragon)",
+    id: "7gz1DIIxmEE",
+    title: "Homestar Runner - Trogdor (Strong Bad Email)",
     description: "Strong Bad teaches Trogdor the Burninator into existence. Burninating the countryside, burninating the peasants!",
     category: "flash-era",
     year: 2003
   },
   {
-    id: "hGKRF0JMGOA",
+    id: "Q77YBmtd2Rw",
     title: "Weebl and Bob",
     description: "Two egg-shaped friends discuss the finer points of pie in this beloved Newgrounds classic. Lo Bob. Lo.",
     category: "flash-era",
@@ -175,7 +175,7 @@ const VIDEOS = [
     year: 2007
   },
   {
-    id: "KmtzQCSh6xk",
+    id: "llyiQ4I-mcQ",
     title: "Numa Numa",
     description: "Gary Brolsma's joyful webcam lip-sync to O-Zone's Dragostea Din Tei was pure, unfiltered internet happiness.",
     category: "early-youtube",
@@ -189,7 +189,7 @@ const VIDEOS = [
     year: 2006
   },
   {
-    id: "93iL0nkJ6Yk",
+    id: "XYz3sl0LEA4",
     title: "Sneezing Baby Panda",
     description: "A baby panda's explosive sneeze scared the living daylights out of its mother. 250 million views of pure adorable chaos.",
     category: "early-youtube",
@@ -203,7 +203,7 @@ const VIDEOS = [
     year: 2007
   },
   {
-    id: "a1Y73sPHKxw",
+    id: "65wblLv1XDk",
     title: "Dramatic Chipmunk",
     description: "Five seconds. One dramatic turn. One prairie dog. Infinite dramatic effect. The internet's most suspenseful moment.",
     category: "early-youtube",
@@ -273,9 +273,9 @@ const VIDEOS = [
     year: 2006
   },
   {
-    id: "byFHOEwRpIk",
-    title: "How to be Ninja",
-    description: "Ryan Higa (NigaHiga) taught everyone how to be a ninja and launched one of YouTube's biggest channels in the process.",
+    id: "IYKsjdkdRbw",
+    title: "How to be Gangster",
+    description: "Ryan Higa (NigaHiga) taught everyone how to be gangster with his signature comedy style that launched one of YouTube's biggest channels.",
     category: "early-youtube",
     year: 2007
   },
@@ -287,11 +287,11 @@ const VIDEOS = [
     year: 2005
   },
   {
-    id: "2AJlQ6HgJxE",
-    title: "The Landlord (Funny or Die)",
-    description: "Will Ferrell's adorable toddler landlord Pearl demands the rent and curses like a sailor. Funny or Die's debut smash.",
+    id: "tLt5rBfNucc",
+    title: "I'm on a Boat (The Lonely Island)",
+    description: "Andy Samberg, Akiva Schaffer, and T-Pain on a boat. Everybody look at me 'cause I'm sailing on a boat! SNL Digital Shorts at their peak.",
     category: "early-youtube",
-    year: 2007
+    year: 2009
   },
   {
     id: "_OBlgSz8sSM",
@@ -368,7 +368,7 @@ const VIDEOS = [
     year: 2011
   },
   {
-    id: "QH2-TGUlwu4",
+    id: "bGfm0Xaofns",
     title: "Nyan Cat",
     description: "A Pop-Tart cat flying through space trailing a rainbow while an earworm plays forever. This is the internet's spirit animal.",
     category: "animals",
@@ -382,11 +382,11 @@ const VIDEOS = [
     year: 2009
   },
   {
-    id: "GSgx8Hk5-NU",
+    id: "D8K90hX4PrE",
     title: "Talking Kitty Cat",
     description: "Steve Cash's conversations with his cat Sylvester launched an entire series of feline sass and attitude.",
     category: "animals",
-    year: 2007
+    year: 2008
   },
   {
     id: "y8Kyi0WNg40",
@@ -396,11 +396,11 @@ const VIDEOS = [
     year: 2007
   },
   {
-    id: "FzRH3iTQPrk",
-    title: "Original Sneezing Panda",
-    description: "The tiniest sneeze with the biggest reaction. Mama panda gets the fright of her life from baby panda's achoo.",
+    id: "B-Wd-Q3F8KM",
+    title: "Henri, Le Chat Noir",
+    description: "The existential musings of a French-speaking cat who ponders the meaninglessness of existence. The ennui. The white idiot.",
     category: "animals",
-    year: 2006
+    year: 2012
   },
   {
     id: "8lnfOvc_jGg",
@@ -417,14 +417,14 @@ const VIDEOS = [
     year: 2007
   },
   {
-    id: "PpccpglnNf0",
+    id: "nlYlNF30bVg",
     title: "Goats Yelling Like Humans - Supercut",
     description: "Goats that sound exactly like screaming humans. Once you hear it, you can never unhear it. AAAAAH!",
     category: "animals",
     year: 2012
   },
   {
-    id: "Awf45u6zrP0",
+    id: "Veg63B8ofnQ",
     title: "Sail Cat (AWOLNATION)",
     description: "A cat leaps off a balcony in perfect sync with AWOLNATION's 'Sail.' The internet's greatest music video edit.",
     category: "animals",
@@ -463,28 +463,28 @@ const VIDEOS = [
     year: 2012
   },
   {
-    id: "vTIIMJ9tUc8",
+    id: "DLzxrzFCyOs",
     title: "Tunak Tunak Tun - Daler Mehndi",
     description: "Daler Mehndi's Punjabi pop classic became an unstoppable internet dance sensation. Four Mehndis dancing in CGI paradise.",
     category: "music",
     year: 2006
   },
   {
-    id: "1wnE4vF9CQ4",
+    id: "4lepzKk7E9w",
     title: "Leekspin / Ievan Polkka",
     description: "An anime girl spins a leek to the Finnish polka song Ievan Polkka. This hypnotic loop consumed hours of our lives.",
     category: "music",
     year: 2006
   },
   {
-    id: "zvq9r_fMzlI",
+    id: "J_DV9b0x7v4",
     title: "Caramelldansen",
     description: "The Swedish eurodance track with the iconic hip-swaying anime dance. Uma uma! The weeb national anthem.",
     category: "music",
     year: 2006
   },
   {
-    id: "fbGkxcY7YFI",
+    id: "hoS1MCF8AeI",
     title: "What What (In the Butt)",
     description: "Samwell's music video became a South Park episode and an unstoppable cultural phenomenon. You heard the title.",
     category: "music",
@@ -621,9 +621,9 @@ const VIDEOS = [
     year: 2005
   },
   {
-    id: "AStZt_NqaLM",
-    title: "Drunk History: Ben Franklin",
-    description: "The original Drunk History web video where Mark Gagliardi tells the story of Benjamin Franklin while absolutely hammered.",
+    id: "OMa1i3ITBbo",
+    title: "Drunk History Vol. 1",
+    description: "The original Drunk History web video that started it all. Mark Gagliardi tells the story of Alexander Hamilton while absolutely hammered.",
     category: "comedy",
     year: 2007
   },
@@ -635,7 +635,7 @@ const VIDEOS = [
     year: 2006
   },
   {
-    id: "rvYZRskNV3w",
+    id: "GI6CfKcMhjY",
     title: "This Is Sparta! (Remix)",
     description: "King Leonidas kicks a man into a pit and spawns ten thousand remixes. THIS IS SPARTAAA became the internet's favorite yell.",
     category: "comedy",
@@ -681,7 +681,7 @@ const VIDEOS = [
     year: 2006
   },
   {
-    id: "MI6-ug0-bI0",
+    id: "qHepKd38pr0",
     title: "Mario Twins",
     description: "They are the Mario Twins! Group X returns to tell us about the Mario Brothers in their uniquely unhinged style.",
     category: "gaming",
@@ -776,8 +776,8 @@ const VIDEOS = [
     year: 2006
   },
   {
-    id: "cegnEBOoyaI",
-    title: "Ask a Ninja - Question 1",
+    id: "m2s0nB2VPvs",
+    title: "Ask a Ninja",
     description: "Kent Nichols and Douglas Sarine's ninja character answered your burning questions with deadly wisdom and comedy.",
     category: "classic-meme",
     year: 2005
@@ -836,14 +836,14 @@ const VIDEOS = [
     year: 2007
   },
   {
-    id: "ehH9OQMQXtk",
+    id: "gNqiSkd1M6k",
     title: "Tron Guy",
     description: "Jay Maynard's homemade Tron costume became an overnight internet celebrity. The spandex. The EL wire. The dedication.",
     category: "classic-meme",
     year: 2006
   },
   {
-    id: "X6n5ndX6l60",
+    id: "kkwiQmGWK4c",
     title: "Brodyquest",
     description: "Adrien Brody floats through increasingly surreal landscapes in this hypnotic masterwork by Lemon Demon's Neil Cicierega.",
     category: "classic-meme",
