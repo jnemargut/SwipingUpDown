@@ -37,7 +37,7 @@ const PlayerManager = (() => {
       width: '100%',
       height: '100%',
       playerVars: {
-        autoplay: 0,
+        autoplay: 1,
         mute: 1,
         controls: 0,
         modestbranding: 1,
@@ -53,12 +53,14 @@ const PlayerManager = (() => {
       },
       events: {
         onReady: (event) => {
-          // Only auto-play if this is still the current slide
           if (index === currentIndex) {
-            event.target.playVideo();
+            // autoplay: 1 handles play; just unmute if needed
             if (!isMuted) {
               try { event.target.unMute(); event.target.setVolume(100); } catch (e) {}
             }
+          } else {
+            // Neighbor preload — pause immediately so it doesn't play off-screen
+            try { event.target.pauseVideo(); } catch (e) {}
           }
         },
         onStateChange: (event) => {
