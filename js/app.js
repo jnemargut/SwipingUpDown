@@ -37,7 +37,7 @@
     slide.dataset.videoId = video.id;
 
     slide.innerHTML =
-      '<div class="player-container"><div id="player-' + index + '"></div></div>' +
+      '<div class="player-container" style="background-image:url(https://img.youtube.com/vi/' + video.id + '/hqdefault.jpg)"><div id="player-' + index + '"></div></div>' +
       '<div class="overlay" id="overlay-' + index + '">' +
         '<div class="video-info">' +
           '<h2 class="video-title">' + escapeHtml(video.title) + '</h2>' +

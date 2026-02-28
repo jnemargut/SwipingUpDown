@@ -5,6 +5,7 @@ const PlayerManager = (() => {
   let apiReady = false;
   let apiReadyResolve = null;
   let settleTimer = null;
+  let neighborTimer = null;
   let totalVideoCount = 0;
   const apiReadyPromise = new Promise((resolve) => { apiReadyResolve = resolve; });
 
@@ -47,8 +48,7 @@ const PlayerManager = (() => {
         iv_load_policy: 3,
         fs: 0,
         disablekb: 1,
-        enablejsapi: 1,
-        origin: window.location.origin
+        enablejsapi: 1
       },
       events: {
         onReady: (event) => {
@@ -121,12 +121,12 @@ const PlayerManager = (() => {
       playPlayer(index);
     }
 
-    // Debounce ALL player creation — this is what prevents fast-scroll overload.
-    // For normal scrolling the 150ms delay is imperceptible.
-    // For fast scrolling, only the final resting slide gets a player created.
+    // Cancel any pending creation timers
     clearTimeout(settleTimer);
+    clearTimeout(neighborTimer);
+
+    // Short debounce for current player — just enough to skip intermediate slides
     settleTimer = setTimeout(function () {
-      // Create current player if it doesn't exist yet
       if (!players[index]) {
         var slide = document.querySelector('.slide[data-index="' + index + '"]');
         if (slide) createPlayer(index, slide.dataset.videoId);
@@ -134,22 +134,24 @@ const PlayerManager = (() => {
         playPlayer(index);
       }
 
-      // Preload neighbors
+      // Destroy players more than 2 away to free memory
+      Object.keys(players).forEach(function (key) {
+        var k = parseInt(key);
+        if (Math.abs(k - index) > 2) {
+          destroyPlayer(k);
+        }
+      });
+    }, 150);
+
+    // Longer debounce for neighbor preloading — only after scrolling truly settles
+    neighborTimer = setTimeout(function () {
       [index - 1, index + 1].forEach(function (i) {
         if (i >= 0 && i < totalVideoCount && !players[i]) {
           var s = document.querySelector('.slide[data-index="' + i + '"]');
           if (s) createPlayer(i, s.dataset.videoId);
         }
       });
-
-      // Destroy players more than 3 away to free memory
-      Object.keys(players).forEach(function (key) {
-        var k = parseInt(key);
-        if (Math.abs(k - index) > 3) {
-          destroyPlayer(k);
-        }
-      });
-    }, 150);
+    }, 500);
   }
 
   function toggleMute() {
