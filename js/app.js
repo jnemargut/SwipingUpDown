@@ -141,4 +141,24 @@
     muteHint.classList.add('dismissed');
     setTimeout(() => muteHint.remove(), 400);
   });
+
+  // Keyboard navigation: arrow keys to scroll between videos
+  document.addEventListener('keydown', (e) => {
+    var current = PlayerManager.getCurrentIndex();
+    var total = PlayerManager.getTotalCount();
+    var target = -1;
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (current < total - 1) target = current + 1;
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (current > 0) target = current - 1;
+    }
+
+    if (target >= 0) {
+      var slide = feed.querySelector('.slide[data-index="' + target + '"]');
+      if (slide) slide.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
 })();

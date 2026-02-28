@@ -4,7 +4,7 @@ const PlayerManager = (() => {
   let isMuted = true;
   let apiReady = false;
   let apiReadyResolve = null;
-  let settleTimer = null;
+  let preloadTimer = null;
   let totalVideoCount = 0;
   const apiReadyPromise = new Promise((resolve) => { apiReadyResolve = resolve; });
 
@@ -52,8 +52,12 @@ const PlayerManager = (() => {
       },
       events: {
         onReady: (event) => {
+          // Auto-play if this is still the current slide when ready
           if (index === currentIndex) {
             event.target.playVideo();
+            if (!isMuted) {
+              try { event.target.unMute(); event.target.setVolume(100); } catch (e) {}
+            }
           }
         },
         onStateChange: (event) => {
@@ -63,9 +67,9 @@ const PlayerManager = (() => {
           }
         },
         onError: (event) => {
-          const slide = document.querySelector('.slide[data-index="' + index + '"]');
+          var slide = document.querySelector('.slide[data-index="' + index + '"]');
           if (slide) {
-            const cont = slide.querySelector('.player-container');
+            var cont = slide.querySelector('.player-container');
             cont.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#555;font-size:14px;text-align:center;padding:20px;">This video is unavailable</div>';
           }
         }
@@ -77,10 +81,10 @@ const PlayerManager = (() => {
     if (!players[index]) return;
     try { players[index].destroy(); } catch (e) {}
     delete players[index];
-    // Restore the placeholder div so we can recreate the player later
-    const slide = document.querySelector('.slide[data-index="' + index + '"]');
+    // Restore placeholder div so we can recreate the player later
+    var slide = document.querySelector('.slide[data-index="' + index + '"]');
     if (slide) {
-      const cont = slide.querySelector('.player-container');
+      var cont = slide.querySelector('.player-container');
       if (cont && !document.getElementById('player-' + index)) {
         cont.innerHTML = '<div id="player-' + index + '"></div>';
       }
@@ -88,7 +92,7 @@ const PlayerManager = (() => {
   }
 
   function playPlayer(index) {
-    const p = players[index];
+    var p = players[index];
     if (!p || typeof p.playVideo !== 'function') return;
     p.playVideo();
     if (!isMuted) {
@@ -97,58 +101,52 @@ const PlayerManager = (() => {
   }
 
   function pausePlayer(index) {
-    const p = players[index];
+    var p = players[index];
     if (!p || typeof p.pauseVideo !== 'function') return;
     try { p.pauseVideo(); } catch (e) {}
   }
 
-  // Called after scrolling settles — does the actual player creation and playback
-  function settle(index) {
-    const slide = document.querySelector('.slide[data-index="' + index + '"]');
-    if (!slide) return;
-    const videoId = slide.dataset.videoId;
-
-    // Destroy everything except neighbors of the settled index
-    Object.keys(players).forEach((key) => {
-      const k = parseInt(key);
-      if (Math.abs(k - index) > 1) {
-        destroyPlayer(k);
-      }
-    });
-
-    // Create players for current and immediate neighbors
-    [index - 1, index, index + 1].forEach((i) => {
-      if (i >= 0 && i < totalVideoCount && !players[i]) {
-        const s = document.querySelector('.slide[data-index="' + i + '"]');
-        if (s) createPlayer(i, s.dataset.videoId);
-      }
-    });
-
-    // Play current, pause others
-    playPlayer(index);
-    Object.keys(players).forEach((key) => {
-      const k = parseInt(key);
-      if (k !== index) pausePlayer(k);
-    });
-  }
-
   function onSlideVisible(index) {
     if (index === currentIndex) return;
+    var prevIndex = currentIndex;
     currentIndex = index;
 
-    // Pause all currently playing players immediately (don't wait for debounce)
-    Object.keys(players).forEach((key) => {
-      pausePlayer(parseInt(key));
-    });
+    // Immediately pause the previous video
+    if (prevIndex >= 0) {
+      pausePlayer(prevIndex);
+    }
 
-    // Debounce: wait for scrolling to stop before creating/loading players
-    clearTimeout(settleTimer);
-    settleTimer = setTimeout(() => settle(index), 200);
+    // Immediately create and play the current video (no debounce)
+    if (!players[index]) {
+      var slide = document.querySelector('.slide[data-index="' + index + '"]');
+      if (slide) createPlayer(index, slide.dataset.videoId);
+    } else {
+      playPlayer(index);
+    }
+
+    // Debounce neighbor preloading and cleanup (avoids hammering during fast scroll)
+    clearTimeout(preloadTimer);
+    preloadTimer = setTimeout(function () {
+      // Preload neighbors
+      [index - 1, index + 1].forEach(function (i) {
+        if (i >= 0 && i < totalVideoCount && !players[i]) {
+          var s = document.querySelector('.slide[data-index="' + i + '"]');
+          if (s) createPlayer(i, s.dataset.videoId);
+        }
+      });
+      // Destroy players more than 3 away to free memory
+      Object.keys(players).forEach(function (key) {
+        var k = parseInt(key);
+        if (Math.abs(k - index) > 3) {
+          destroyPlayer(k);
+        }
+      });
+    }, 300);
   }
 
   function toggleMute() {
     isMuted = !isMuted;
-    const p = players[currentIndex];
+    var p = players[currentIndex];
     if (p && typeof p.mute === 'function') {
       if (isMuted) {
         p.mute();
@@ -163,10 +161,10 @@ const PlayerManager = (() => {
   function observeSlides(feed, totalVideos) {
     totalVideoCount = totalVideos;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
         if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          const index = parseInt(entry.target.dataset.index);
+          var index = parseInt(entry.target.dataset.index);
           onSlideVisible(index);
         }
       });
@@ -175,9 +173,17 @@ const PlayerManager = (() => {
       threshold: 0.5
     });
 
-    feed.querySelectorAll('.slide').forEach((slide) => observer.observe(slide));
+    feed.querySelectorAll('.slide').forEach(function (slide) { observer.observe(slide); });
     return observer;
   }
 
-  return { loadAPI, observeSlides, toggleMute, createPlayer, apiReady: apiReadyPromise };
+  function getCurrentIndex() {
+    return currentIndex;
+  }
+
+  function getTotalCount() {
+    return totalVideoCount;
+  }
+
+  return { loadAPI, observeSlides, toggleMute, createPlayer, getCurrentIndex, getTotalCount, apiReady: apiReadyPromise };
 })();
